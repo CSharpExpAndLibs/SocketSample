@@ -3,9 +3,36 @@
 
 #include <iostream>
 
-int main()
+#include <Windows.h>
+
+#include <stdio.h> //printf(), fprintf(), perror()
+#include <stdlib.h> //atoi(), exit(), EXIT_FAILURE, EXIT_SUCCESS
+#include <string.h> //memset()
+
+#include "TcpSockClient.h"
+
+
+int main(int ac, char* av[])
 {
-    std::cout << "Hello World!\n";
+    WORD wVersionRequested = MAKEWORD(2, 2);
+    WSADATA wsaData;
+
+    // WINSOCK DLLを使うプロセスが一度だけ実行しないと
+    // ならない呪文
+    int err = WSAStartup(wVersionRequested, &wsaData);
+    if (err != 0) {
+        /* Tell the user that we could not find a usable */
+        /* Winsock DLL.                                  */
+        printf("WSAStartup failed with error: %d\n", err);
+        return -1;
+    }
+
+    err = client(av[1], atoi(av[2]));;
+
+    // 閉じるときの呪文
+    WSACleanup();
+
+    return err;
 }
 
 // プログラムの実行: Ctrl + F5 または [デバッグ] > [デバッグなしで開始] メニュー
