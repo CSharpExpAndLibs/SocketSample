@@ -8,8 +8,6 @@
 #include <stdio.h> //printf(), fprintf(), perror()
 #include <stdlib.h> //atoi(), exit(), EXIT_FAILURE, EXIT_SUCCESS
 #include <string.h> //memset()
-//#include <ws2def.h>
-//#include <winsock2.h>
 
 #define QUEUELIMIT 5
 
@@ -25,9 +23,12 @@ int server(int servPort) {
     int totalBytesRcvd;
 
     if ((servSock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0) {
-        perror("socket() failed.");
+        int err = WSAGetLastError();
+        printf("socket() failed:%d\n", err);
         return EXIT_FAILURE;
     }
+    printf("Server socket (%d) opened\n", servSock);
+
 
     memset(&servSockAddr, 0, sizeof(servSockAddr));
     servSockAddr.sin_family = AF_INET;
@@ -44,9 +45,11 @@ int server(int servPort) {
         perror("listen() failed.");
         return EXIT_FAILURE;
     }
+    printf("Socket (%d) start to listen on port (%d)\n", servSock, servPort);
 
     while (1) {
         clitLen = sizeof(clitSockAddr);
+        printf("Start waiting Connection...\n");
         if ((clitSock = accept((SOCKET)servSock, (struct sockaddr*)&clitSockAddr,
             &clitLen)) < 0) {
             perror("accept() failed.");
@@ -79,7 +82,25 @@ int server(int servPort) {
 
 int main(int ac, char *av[])
 {
-	server(atoi(av[1]));
+    WORD wVersionRequested = MAKEWORD(2, 2);
+    WSADATA wsaData;
+
+    // WINSOCK DLLを使うプロセスが一度だけ実行しないと
+    // ならない呪文
+    int err = WSAStartup(wVersionRequested, &wsaData);
+    if (err != 0) {
+        /* Tell the user that we could not find a usable */
+        /* Winsock DLL.                                  */
+        printf("WSAStartup failed with error: %d\n", err);
+        return -1;
+    }
+
+    err = server(atoi(av[1]));;
+
+    // 閉じるときの呪文
+    WSACleanup();
+
+    return err;
 }
 
 // プログラムの実行: Ctrl + F5 または [デバッグ] > [デバッグなしで開始] メニュー
