@@ -1,10 +1,4 @@
-#include <stdio.h> //printf(), fprintf(), perror()
-#include <stdlib.h> //atoi(), exit(), EXIT_FAILURE, EXIT_SUCCESS
-#include <string.h> //memset()
-#include <ws2def.h>
-#include <winsock2.h>
-
-#define QUEUELIMIT 5
+#if 0
 
 int server(int servPort) {
 
@@ -68,3 +62,5 @@ int server(int servPort) {
 
     return EXIT_SUCCESS;
 }
+
+#endif
