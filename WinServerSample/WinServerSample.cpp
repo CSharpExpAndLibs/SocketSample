@@ -3,9 +3,11 @@
 
 #include <iostream>
 
-int main()
+extern int server(int port);
+
+int main(int ac, char *av[])
 {
-    std::cout << "Hello World!\n";
+	server(atoi(av[1]));
 }
 
 // プログラムの実行: Ctrl + F5 または [デバッグ] > [デバッグなしで開始] メニュー

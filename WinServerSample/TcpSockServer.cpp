@@ -6,28 +6,17 @@
 
 #define QUEUELIMIT 5
 
-int main(int argc, char* argv[]) {
+int server(int servPort) {
 
     int servSock; //server socket descriptor
     int clitSock; //client socket descriptor
     struct sockaddr_in servSockAddr; //server internet socket address
     struct sockaddr_in clitSockAddr; //client internet socket address
-    unsigned short servPort; //server port number
     unsigned int clitLen; // client internet socket address length
     char recvBuffer[1025];
     int byteRcvd;
     int totalBytesRcvd;
 
-    if ( argc != 2) {
-        fprintf(stderr, "argument count mismatch error.\n");
-        return EXIT_FAILURE;
-    }
-
-    if ((servPort = (unsigned short) atoi(argv[1])) == 0) {
-        fprintf(stderr, "invalid port number.\n");
-        return EXIT_FAILURE;
-    }
-    
     if ((servSock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0 ){
         perror("socket() failed.");
         return EXIT_FAILURE;
@@ -73,7 +62,7 @@ int main(int argc, char* argv[]) {
             printf("%s\n", recvBuffer);
             totalBytesRcvd += byteRcvd;
         }
-        close(clitSock);
+        closesocket(clitSock);
         printf("total Bytes received=%d\n", totalBytesRcvd);
     }
 
