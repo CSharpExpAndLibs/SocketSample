@@ -1,4 +1,10 @@
-#if 0
+#include <Windows.h>
+
+#include <stdio.h> //printf(), fprintf(), perror()
+#include <stdlib.h> //atoi(), exit(), EXIT_FAILURE, EXIT_SUCCESS
+#include <string.h> //memset()
+
+#define QUEUELIMIT 5
 
 int server(int servPort) {
 
@@ -6,23 +12,26 @@ int server(int servPort) {
     int clitSock; //client socket descriptor
     struct sockaddr_in servSockAddr; //server internet socket address
     struct sockaddr_in clitSockAddr; //client internet socket address
-    unsigned int clitLen; // client internet socket address length
+    int clitLen; // client internet socket address length
     char recvBuffer[1025];
     int byteRcvd;
     int totalBytesRcvd;
 
-    if ((servSock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0 ){
-        perror("socket() failed.");
+    if ((servSock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0) {
+        int err = WSAGetLastError();
+        printf("socket() failed:%d\n", err);
         return EXIT_FAILURE;
     }
+    printf("Server socket (%d) opened\n", servSock);
+
 
     memset(&servSockAddr, 0, sizeof(servSockAddr));
-    servSockAddr.sin_family      = AF_INET;
+    servSockAddr.sin_family = AF_INET;
     servSockAddr.sin_addr.s_addr = htonl(INADDR_ANY);
-    servSockAddr.sin_port        = htons(servPort);
+    servSockAddr.sin_port = htons(servPort);
 
-    if (bind(servSock, (struct sockaddr *) &servSockAddr,
-             sizeof(servSockAddr) ) < 0 ) {
+    if (bind(servSock, (struct sockaddr*)&servSockAddr,
+        sizeof(servSockAddr)) < 0) {
         perror("bind() failed.");
         return EXIT_FAILURE;
     }
@@ -31,11 +40,13 @@ int server(int servPort) {
         perror("listen() failed.");
         return EXIT_FAILURE;
     }
+    printf("Socket (%d) start to listen on port (%d)\n", servSock, servPort);
 
     while (1) {
         clitLen = sizeof(clitSockAddr);
-        if ((clitSock = accept(servSock, (struct sockaddr *) &clitSockAddr,
-                               &clitLen)) < 0) {
+        printf("Start waiting Connection...\n");
+        if ((clitSock = accept((SOCKET)servSock, (struct sockaddr*)&clitSockAddr,
+            &clitLen)) < 0) {
             perror("accept() failed.");
             return EXIT_FAILURE;
         }
@@ -44,11 +55,12 @@ int server(int servPort) {
         // クライアントから明示的に接続切断されるまで受信を続ける
         totalBytesRcvd = 0;
         while (1) {
-            byteRcvd = recv(clitSock, recvBuffer, sizeof(recvBuffer)-1, 0);
-            if(byteRcvd == 0){
+            byteRcvd = recv(clitSock, recvBuffer, sizeof(recvBuffer) - 1, 0);
+            if (byteRcvd == 0) {
                 printf("Conneciton Closed\n");
                 break;
-            } else if (byteRcvd < 0){
+            }
+            else if (byteRcvd < 0) {
                 perror("recv() failed.");
                 break;
             }
@@ -62,5 +74,3 @@ int server(int servPort) {
 
     return EXIT_SUCCESS;
 }
-
-#endif

@@ -145,6 +145,9 @@
     <ClCompile Include="TcpSockServer.cpp" />
     <ClCompile Include="WinServerSample.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="TcpSockServer.h" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
